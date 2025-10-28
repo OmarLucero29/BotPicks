@@ -1,0 +1,134 @@
+{
+  "sports": {
+    "soccer": {
+      "emoji": "\u26bd",
+      "props_player": true,
+      "variants": [
+        "premier",
+        "laliga",
+        "bundesliga",
+        "seriea",
+        "ligue1",
+        "primeira",
+        "ucl",
+        "ligamx",
+        "mls",
+        "libertadores"
+      ],
+      "notes": "1X2, U/O 2.5, BTTS, HA"
+    },
+    "baseball": {
+      "emoji": "\u26be",
+      "props_player": true,
+      "variants": [
+        "mlb"
+      ],
+      "notes": "ML, RL \u00b11.5, Totales, 1st5"
+    },
+    "basketball": {
+      "emoji": "\ud83c\udfc0",
+      "props_player": true,
+      "variants": [
+        "nba",
+        "euroleague",
+        "wnba"
+      ],
+      "notes": "ML, Spread, Totales, 1H/1Q"
+    },
+    "football": {
+      "emoji": "\ud83c\udfc8",
+      "props_player": true,
+      "variants": [
+        "nfl"
+      ],
+      "notes": "ML, Spread, Totales"
+    },
+    "tennis": {
+      "emoji": "\ud83c\udfbe",
+      "props_player": false,
+      "variants": [
+        "atp",
+        "wta",
+        "challenger"
+      ],
+      "notes": "Ganar\u00e1 un set, Handicap juegos"
+    },
+    "hockey": {
+      "emoji": "\ud83c\udfd2",
+      "props_player": false,
+      "variants": [
+        "nhl"
+      ],
+      "notes": "ML, Puck \u00b11.5, Totales"
+    },
+    "pingpong": {
+      "emoji": "\ud83c\udfd3",
+      "props_player": false,
+      "variants": [
+        "proliga"
+      ],
+      "notes": "Ganador, U/O sets"
+    },
+    "esports": {
+      "emoji": "\ud83c\udfae",
+      "props_player": false,
+      "variants": [
+        "lol",
+        "cs2",
+        "dota2",
+        "valorant"
+      ],
+      "notes": "Match winner, Map handicap"
+    },
+    "efutbol": {
+      "emoji": "\ud83c\udfae",
+      "props_player": false,
+      "variants": [
+        "elaliga"
+      ],
+      "notes": "BO series"
+    },
+    "mma": {
+      "emoji": "\ud83e\udd4b",
+      "props_player": false,
+      "variants": [
+        "ufc"
+      ],
+      "notes": "Ganador, O/U rounds"
+    },
+    "boxing": {
+      "emoji": "\ud83e\udd4a",
+      "props_player": false,
+      "variants": [
+        "world_title"
+      ],
+      "notes": "Ganador, M\u00e9todo"
+    },
+    "f1": {
+      "emoji": "\ud83c\udfce\ufe0f",
+      "props_player": false,
+      "variants": [
+        "f1_2025"
+      ],
+      "notes": "H2H, Top-10, Podio"
+    },
+    "fantasy_soccer": {
+      "emoji": "\ud83d\udd79\ufe0f",
+      "props_player": false,
+      "variants": [
+        "fantasy_mode"
+      ],
+      "notes": "virtual"
+    }
+  },
+  "sources_bootstrap": {
+    "nba": "https://www.balldontlie.io/api/v1/",
+    "mlb": "https://statsapi.mlb.com/api/",
+    "nhl": "https://statsapi.web.nhl.com/api/v1/",
+    "f1": "https://ergast.com/api/f1/",
+    "nfl_csv": "https://raw.githubusercontent.com/nflverse/nflfastR-data/master/data/",
+    "tennis_csv": "https://raw.githubusercontent.com/JeffSackmann/",
+    "soccer_open": "https://raw.githubusercontent.com/openfootball/",
+    "pandascore": "https://api.pandascore.co"
+  }
+}
