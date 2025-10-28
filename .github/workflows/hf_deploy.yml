@@ -1,0 +1,37 @@
+name: Deploy to Hugging Face Space
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "bot/**"
+      - "src/**"
+      - "config/**"
+      - "sql/**"
+      - "Dockerfile"
+      - "requirements.txt"
+      - ".github/workflows/hf_deploy.yml"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@example.com"
+          git lfs install
+
+      - name: Push to Space (main)
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ secrets.HF_SPACE }}   # ej: org/space-name
+        run: |
+          # Clona el Space y sincroniza todos los archivos del repo
+          SPACE_URL="https://oauth2:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}"
+          git remote add space "${SPACE_URL}"
+          # Empuja la rama actual hacia main del Space (fuerza para sobreescribir cambios previos del Space)
+          git push --force space HEAD:main
