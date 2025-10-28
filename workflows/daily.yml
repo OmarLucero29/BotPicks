@@ -1,0 +1,33 @@
+name: Daily Pipeline
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch: {}
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt
+      - name: Ingest (EXTENDED)
+        env:
+          PANDASCORE_TOKEN: ${{ secrets.PANDASCORE_TOKEN }}
+        run: python -m src.pipelines.ingest
+      - name: Train
+        run: python -m src.pipelines.train_baseline
+      - name: Predict & Publish
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
+          GSHEET_ID: ${{ secrets.GSHEET_ID }}
+          DEFAULT_ODDS_FORMAT: ${{ vars.DEFAULT_ODDS_FORMAT }}
+          DEFAULT_BANKROLL: ${{ vars.DEFAULT_BANKROLL }}
+          DEFAULT_KELLY_FRACTION: ${{ vars.DEFAULT_KELLY_FRACTION }}
+          DEFAULT_STAKE_MIN: ${{ vars.DEFAULT_STAKE_MIN }}
+          DEFAULT_STAKE_MAX: ${{ vars.DEFAULT_STAKE_MAX }}
+          DEFAULT_TOP_PICKS: ${{ vars.DEFAULT_TOP_PICKS }}
+          SEND_DAILY_TO_SHEETS: "true"
+        run: python -m src.pipelines.predict_and_publish
