@@ -1,33 +1,70 @@
-import json, pathlib, joblib, numpy as np
+"""
+Entrenamiento baseline robusto.
+Evita fallos cuando hay una sola clase o pocos datos.
+"""
+import os, json, pathlib, joblib
+import numpy as np
+import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.isotonic import IsotonicRegression
+from sklearn.metrics import brier_score_loss, log_loss, accuracy_score
 
-RAW = pathlib.Path("data/raw")
-MODELS = pathlib.Path("models"); MODELS.mkdir(parents=True, exist_ok=True)
+DATA_DIR = pathlib.Path("data/raw")
+MODEL_DIR = pathlib.Path("models"); MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
-def _load_any_dataset(sport_dir: pathlib.Path):
-    import json
-    rows=[]
-    for f in sport_dir.glob("*.jsonl"):
-        for line in open(f,"r",encoding="utf-8"):
-            try: rows.append(json.loads(line))
-            except: pass
-    if not rows: 
-        return np.zeros((1,2)), np.array([0])
-    import random
-    X = np.array([[1.6 + random.random()*0.9, 0.45 + random.random()*0.25] for _ in range(len(rows))], dtype=float)
-    y = np.array([1 if (r.get("home_score",0) or 0) > (r.get("away_score",0) or 0) else 0 for r in rows], dtype=int)
-    return X, y
+def load_training_data():
+    # Leer datasets básicos disponibles
+    files = list(DATA_DIR.rglob("*.jsonl"))
+    rows = []
+    for f in files:
+        try:
+            with open(f, "r", encoding="utf-8") as fh:
+                for line in fh:
+                    rows.append(json.loads(line))
+        except Exception:
+            continue
+    df = pd.DataFrame(rows)
+    return df
 
 def train_all():
-    for sport_dir in RAW.iterdir():
-        if not sport_dir.is_dir(): continue
-        X,y = _load_any_dataset(sport_dir)
-        lr = LogisticRegression(max_iter=500).fit(X, y)
-        p_raw = lr.predict_proba(X)[:,1]
-        iso = IsotonicRegression(out_of_bounds="clip").fit(p_raw, y)
-        joblib.dump({"lr":lr,"iso":iso}, MODELS / f"{sport_dir.name}.joblib")
-    print("OK train.")
+    df = load_training_data()
+    if df.empty:
+        print("No data found for training. Creating dummy model.")
+        dummy_path = MODEL_DIR / "dummy.pkl"
+        joblib.dump({"status": "dummy", "msg": "no data"}, dummy_path)
+        return
 
-if __name__=="__main__":
+    # Simulación simple: usamos home_score y away_score si existen
+    if "home_score" not in df.columns or "away_score" not in df.columns:
+        print("No valid score columns found, creating dummy model.")
+        joblib.dump({"status": "dummy", "msg": "no valid columns"}, MODEL_DIR / "dummy.pkl")
+        return
+
+    df = df.dropna(subset=["home_score", "away_score"])
+    df["label"] = (df["home_score"] > df["away_score"]).astype(int)
+    if df["label"].nunique() < 2:
+        print("Only one class present in training data. Creating dummy model.")
+        joblib.dump({"status": "dummy", "msg": "single class"}, MODEL_DIR / "dummy.pkl")
+        return
+
+    # Features simples
+    X = (df["home_score"] - df["away_score"]).to_numpy().reshape(-1,1)
+    y = df["label"].to_numpy()
+
+    lr = LogisticRegression(max_iter=500)
+    lr.fit(X, y)
+
+    preds = lr.predict_proba(X)[:, 1]
+    metrics = {
+        "brier": float(brier_score_loss(y, preds)),
+        "logloss": float(log_loss(y, preds)),
+        "acc": float(accuracy_score(y, (preds>0.5).astype(int))),
+        "n": int(len(y))
+    }
+
+    model_path = MODEL_DIR / "baseline.pkl"
+    joblib.dump({"model": lr, "metrics": metrics}, model_path)
+    print("Model trained and saved:", model_path)
+    print("Metrics:", metrics)
+
+if __name__ == "__main__":
     train_all()
