@@ -11,27 +11,26 @@ on:
       - "requirements.txt"
       - ".github/workflows/hf_deploy.yml"
   workflow_dispatch: {}
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configure Git
-        run: |
-          git config user.name "bot"
-          git config user.email "bot@example.com"
-          git lfs install
-
-      - name: Push to Space (main)
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install "huggingface_hub==0.24.5"
+      - name: Upload to Space (create if not exists)
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE: ${{ secrets.HF_SPACE }}   # ej: org/space-name
+          HF_SPACE: ${{ secrets.HF_SPACE }}
         run: |
-          # Clona el Space y sincroniza todos los archivos del repo
-          SPACE_URL="https://oauth2:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}"
-          git remote add space "${SPACE_URL}"
-          # Empuja la rama actual hacia main del Space (fuerza para sobreescribir cambios previos del Space)
-          git push --force space HEAD:main
+          python - << 'PY'
+          import os
+          from huggingface_hub import HfApi
+          token = os.environ["HF_TOKEN"]
+          space = os.environ["HF_SPACE"]
+          api = HfApi(token=token)
+          api.create_repo(repo_id=space, repo_type="space", space_sdk="docker", exist_ok=True)
+          api.upload_folder(folder_path=".", repo_id=space, repo_type="space", path_in_repo="", commit_message="Deploy from GitHub Actions")
+          print("OK: uploaded to Space", space)
+          PY
