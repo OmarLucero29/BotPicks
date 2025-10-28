@@ -4,6 +4,8 @@ from src.common.odds import from_decimal
 from src.common.stake_kelly import KellyConfig, compute_kelly
 from src.common.supabase_io import insert_pick
 from src.common.sheets_io import write_rows
+from src.common.env import env_float
+from src.common.settings import get_bankroll
 
 MODELS = pathlib.Path("models")
 CFG = json.load(open("config/menu_config.json","r",encoding="utf-8"))
@@ -104,7 +106,9 @@ def publish_today(odds_fmt:str, bankroll:float, fraction:float, top:int):
 
 if __name__=="__main__":
     odds_fmt = os.getenv("DEFAULT_ODDS_FORMAT","decimal")
-    bankroll = float(os.getenv("DEFAULT_BANKROLL","500"))
-    fraction = float(os.getenv("DEFAULT_KELLY_FRACTION","0.25"))
-    top = int(os.getenv("DEFAULT_TOP_PICKS","5"))
+    # Fallback robusto: ENV → Supabase → CFG → 500
+    bankroll_default = float(CFG.get("bankroll", 500))
+    bankroll = env_float("DEFAULT_BANKROLL", get_bankroll(bankroll_default))
+    fraction = env_float("DEFAULT_KELLY_FRACTION", 0.25)
+    top = int(os.getenv("DEFAULT_TOP_PICKS", str(CFG.get("top_picks", 5))))
     publish_today(odds_fmt, bankroll, fraction, top)
