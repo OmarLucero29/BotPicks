@@ -1,18 +1,25 @@
 import os, sys, os.path
 from dotenv import load_dotenv
 
-# --- Path guard: permite imports aunque el entorno no tenga PYTHONPATH=/app ---
+# --- Path guard para imports ---
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, ".."))
 if ROOT_DIR not in sys.path:
     sys.path.append(ROOT_DIR)
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import (
+    Application, CommandHandler, CallbackQueryHandler,
+    MessageHandler, ContextTypes, filters
+)
 
 from src.common.settings import get_bankroll, set_setting
 
 load_dotenv()
+
+PORT = int(os.getenv("PORT", "7860"))  # HF usa 7860
+PUBLIC_URL = os.getenv("PUBLIC_URL", "").strip()  # ej: https://usuario-space.hf.space
+WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET_TOKEN", "").strip()
 
 def config_keyboard(current_bank: float):
     return InlineKeyboardMarkup([
@@ -70,12 +77,25 @@ def main():
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     if not token:
         raise RuntimeError("TELEGRAM_BOT_TOKEN no configurado")
-    app = Application.builder().token(token).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("config", config_menu))
-    app.add_handler(CallbackQueryHandler(on_callback))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
-    app.run_polling()
+
+    application = Application.builder().token(token).build()
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("config", config_menu))
+    application.add_handler(CallbackQueryHandler(on_callback))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
+
+    # Si PUBLIC_URL está presente, usamos webhook; si no, polling (fallback).
+    if PUBLIC_URL:
+        # Ruta de webhook: /webhook
+        application.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            url=f"{PUBLIC_URL.rstrip('/')}/webhook",
+            secret_token=WEBHOOK_SECRET or None,
+        )
+    else:
+        # Fallback a polling (útil localmente)
+        application.run_polling()
 
 if __name__ == "__main__":
     main()
