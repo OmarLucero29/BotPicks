@@ -3,36 +3,16 @@
   "odds_format": "decimal",
   "kelly_fraction": 0.25,
   "stake_min": 0.01,
-  "stake_max": 0.1,
+  "stake_max": 0.10,
   "top_picks": 5,
+  "bankroll": 500,
   "parlay": {
-    "segurito": {
-      "min_odds": 1.3,
-      "max_legs": 3
-    },
-    "sonador": {
-      "target_odds": 5.0,
-      "max_legs": 6
-    }
+    "segurito": { "min_odds": 1.30, "max_legs": 3 },
+    "sonador": { "target_odds": 5.00, "max_legs": 6 }
   },
-  "notifications": {
-    "start": false,
-    "progress": false,
-    "result": true
-  },
+  "notifications": { "start": false, "progress": false, "result": true },
   "sports_active": {
-    "soccer": true,
-    "baseball": true,
-    "basketball": true,
-    "football": true,
-    "tennis": true,
-    "hockey": true,
-    "pingpong": true,
-    "esports": true,
-    "efutbol": true,
-    "mma": true,
-    "boxing": true,
-    "f1": true,
-    "fantasy_soccer": true
+    "soccer": true, "baseball": true, "basketball": true, "football": true, "tennis": true, "hockey": true,
+    "pingpong": true, "esports": true, "efutbol": true, "mma": true, "boxing": true, "f1": true, "fantasy_soccer": true
   }
 }
