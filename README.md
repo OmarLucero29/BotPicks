@@ -1,15 +1,16 @@
-# BotPicks V1.0 EXT (gratis • nube • automático)
+---
+title: PicksBot
+emoji: 🔮
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+pinned: false
+---
 
-## Secrets usados
-TELEGRAM_BOT_TOKEN, GSHEET_ID, GCP_SA_JSON, SUPABASE_URL, SUPABASE_ANON_KEY, PANDASCORE_TOKEN.
-Opcionales: TELEGRAM_CHAT_ID, SUPABASE_SERVICE_ROLE, GSHEET_PICKS_TAB, GSHEET_PARLAY_TAB, GSHEET_GUARDADOS, GH_PAT, HF_TOKEN.
+# PicksBot — Gratis • Nube • Automático
 
-## Tabs por defecto
-PICKS, PARLAYS, PICKS_GUARDADOS (puedes cambiar con GSHEET_*_TAB).
+Este Space usa **SDK Docker**. El contenedor arranca el bot de Telegram y lee variables desde
+Settings → Secrets/Variables del Space: `TELEGRAM_BOT_TOKEN`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
+`GCP_SA_JSON`, `GSHEET_ID`, `PANDASCORE_TOKEN` (y opcionales `DEFAULT_*`, `GSHEET_*_TAB`).
 
-## Comandos locales
-pip install -r requirements.txt
-python -m src.pipelines.ingest
-python -m src.pipelines.train_baseline
-python -m src.pipelines.predict_and_publish
-python bot/telegram_bot.py
+> No hay UI web; el proceso principal es el bot (long-polling).
