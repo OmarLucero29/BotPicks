@@ -1,0 +1,42 @@
+name: Deploy to Hugging Face Space
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "bot/**"
+      - "src/**"
+      - "config/**"
+      - "sql/**"
+      - "Dockerfile"
+      - "requirements.txt"
+      - ".github/workflows/hf_deploy.yml"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "huggingface_hub==0.24.5"
+      - name: Upload to Space (create if not exists)
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ secrets.HF_SPACE }}
+        run: |
+          python - << 'PY'
+          import os, re, sys
+          from huggingface_hub import HfApi
+          space = os.environ.get("HF_SPACE","").strip()
+          token = os.environ.get("HF_TOKEN","").strip()
+          if not token:
+            raise SystemExit("ERROR: HF_TOKEN no definido en Secrets.")
+          if not space or space == "***" or not re.match(r"^[\w.-]+(/[\w.-]+)?$", space):
+            raise SystemExit("ERROR: HF_SPACE inválido. Usa 'usuario/space-name' (ej: tuuser/botpicks).")
+          api = HfApi(token=token)
+          api.create_repo(repo_id=space, repo_type="space", space_sdk="docker", exist_ok=True)
+          api.upload_folder(folder_path=".", repo_id=space, repo_type="space", path_in_repo="", commit_message="Deploy from GitHub Actions")
+          print("OK: uploaded to Space", space)
+          PY
