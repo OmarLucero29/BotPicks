@@ -1,5 +1,12 @@
-import os
+import os, sys, os.path
 from dotenv import load_dotenv
+
+# --- Path guard: permite imports aunque el entorno no tenga PYTHONPATH=/app ---
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.append(ROOT_DIR)
+
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
@@ -41,14 +48,13 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await q.message.reply_text(f"✅ Bank inicial actualizado a {val}")
         except Exception:
             await q.message.reply_text("❌ No pude guardar el bank. Intenta de nuevo.")
-        # Refresca el menú
         bank = get_bankroll()
         await q.message.reply_text("⚙️ Configuración", reply_markup=config_keyboard(bank))
 
 async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.user_data.get("await_bank"):
         txt = (update.message.text or "").strip()
-        if txt.isdigit() or txt.replace(".","",1).isdigit():
+        if txt.replace(".","",1).isdigit():
             try:
                 set_setting("bankroll", float(txt))
                 await update.message.reply_text(f"✅ Bank inicial actualizado a {txt}")
@@ -57,7 +63,6 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("Ingresa un número válido, ej: 750")
         context.user_data["await_bank"] = False
-        # mostrar menú otra vez
         bank = get_bankroll()
         await update.message.reply_text("⚙️ Configuración", reply_markup=config_keyboard(bank))
 
