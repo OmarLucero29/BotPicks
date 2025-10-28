@@ -1,33 +1,23 @@
 name: Daily Pipeline
 on:
   schedule:
-    - cron: "0 9 * * *"   # 09:00 UTC diario
+    - cron: "0 9 * * *"
   workflow_dispatch: {}
-
 jobs:
   daily:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install deps
-        run: pip install -r requirements.txt
-
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt
       - name: Ingest (EXTENDED)
         env:
           PANDASCORE_TOKEN: ${{ secrets.PANDASCORE_TOKEN }}
         run: python -m src.pipelines.ingest
-
       - name: Train
         run: python -m src.pipelines.train_baseline
-
-      - name: Predict & Publish (Sheets + Supabase)
+      - name: Predict & Publish
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
