@@ -9,59 +9,77 @@ from google.oauth2.service_account import Credentials
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
+
+def _clean_secret(raw: str) -> str:
+    """Limpia caracteres, saltos y líneas basura (***, etc.) del Secret."""
+    if not raw:
+        return raw
+    raw = raw.strip().lstrip("\ufeff")
+    # Si hay líneas con *** o vacías al inicio, elimínalas
+    lines = []
+    for line in raw.splitlines():
+        if line.strip().startswith("***"):
+            continue
+        if line.strip() == "":
+            continue
+        lines.append(line)
+    cleaned = "\n".join(lines).strip()
+    # Quita comillas envolventes si existen
+    if (cleaned[0] in ["'", '"']) and cleaned[-1] == cleaned[0]:
+        cleaned = cleaned[1:-1]
+    # Normaliza secuencias de escape
+    cleaned = cleaned.replace("\\n", "\n").replace("\\r", "").strip()
+    return cleaned
+
+
 def _load_sa_info() -> dict:
     """
-    Carga credenciales GCP de múltiples formatos:
-      - JSON multilínea pegado (GitHub Secrets con saltos)
-      - JSON con '\n' escapados
+    Carga credenciales GCP soportando:
+      - JSON multilínea (pegado directamente en Secret)
+      - JSON con \n escapados
       - Base64
-      - Ruta a archivo .json
+      - Ruta a archivo
     """
     raw = os.getenv("GCP_SA_JSON")
     if not raw:
-        raise RuntimeError("GCP_SA_JSON no está definido.")
-    raw = raw.strip().lstrip("\ufeff")
+        raise RuntimeError("GCP_SA_JSON no está definido o está vacío.")
 
-    # Si empieza con { intenta directo (JSON plano)
+    raw = _clean_secret(raw)
+
+    # 1. Intento directo como JSON
     if raw.startswith("{"):
         try:
             return json.loads(raw)
         except Exception:
             pass
 
-    # Si parece Base64
+    # 2. Intento Base64
     try:
-        decoded = base64.b64decode(raw, validate=True).decode("utf-8-sig")
-        if decoded.strip().startswith("{"):
+        decoded = base64.b64decode(raw, validate=True).decode("utf-8-sig").strip()
+        if decoded.startswith("{"):
             return json.loads(decoded)
     except Exception:
         pass
 
-    # Si parece ruta de archivo
+    # 3. Si es ruta a archivo
     if raw.endswith(".json") and os.path.exists(raw):
         with open(raw, "r", encoding="utf-8-sig") as f:
             return json.load(f)
 
-    # Normaliza saltos: reemplaza secuencias literales '\n' o reales por saltos reales
-    cleaned = raw.replace("\\n", "\n").replace('\r\n', '\n')
-    # Quita comillas envolventes si las hay
-    if (cleaned[0] in ['"', "'"]) and cleaned[-1] == cleaned[0]:
-        cleaned = cleaned[1:-1]
+    # 4. Último intento: limpiar más profundamente
+    candidate = _clean_secret(raw)
+    if candidate.startswith("{"):
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError as e:
+            snippet = candidate[:200].encode("unicode_escape", "ignore")
+            raise RuntimeError(
+                f"Error parseando GCP_SA_JSON (línea {e.lineno}, col {e.colno}): {e.msg}\n"
+                f"Inicio del contenido={snippet}"
+            ) from e
 
-    # Quita asteriscos o prefijos accidentales (*** etc.)
-    cleaned = "\n".join(
-        line for line in cleaned.splitlines() if not line.strip().startswith("***")
-    ).strip()
-
-    # Intenta parsear de nuevo
-    try:
-        return json.loads(cleaned)
-    except json.JSONDecodeError as e:
-        snippet = cleaned[:200].encode("unicode_escape", "ignore")
-        raise RuntimeError(
-            f"Error parseando GCP_SA_JSON (línea {e.lineno}, col {e.colno}): {e.msg}\n"
-            f"Inicio del contenido={snippet}"
-        ) from e
+    # 5. Si no es JSON ni Base64 ni archivo
+    raise RuntimeError("Formato desconocido en GCP_SA_JSON.")
 
 
 def _authorize() -> gspread.Client:
