@@ -1,0 +1,24 @@
+{
+  "timezone": "America/Merida",
+  "odds_format": "decimal",
+  "kelly_fraction": 0.25,
+  "stake_min": 0.01,
+  "stake_max": 0.1,
+  "top_picks": 5,
+  "bankroll": 500,
+  "parlay": {
+    "segurito": {
+      "min_odds": 1.3,
+      "max_legs": 3
+    },
+    "sonador": {
+      "target_odds": 5.0,
+      "max_legs": 6
+    }
+  },
+  "notifications": {
+    "start": false,
+    "progress": false,
+    "result": true
+  }
+}

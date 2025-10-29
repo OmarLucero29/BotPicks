@@ -1,0 +1,9 @@
+name = "picksbothook"
+main = "workers/telegram_bot.js"
+compatibility_date = "2024-12-01"
+
+[vars]
+TELEGRAM_API = "https://api.telegram.org"
+
+[observability]
+enabled = true
