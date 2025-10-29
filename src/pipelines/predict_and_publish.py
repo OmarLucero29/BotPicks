@@ -1,11 +1,14 @@
 # src/pipelines/predict_and_publish.py
+# Carga picks → convierte a filas → publica a Google Sheets
+
 from typing import List, Dict, Any
 
-from .sheets_append import (  # import relativo al paquete 'src.pipelines'
+from .sheets_append import (
     _load_picks,
     _format_rows,
     publish_to_sheets,
 )
+
 
 def run() -> None:
     picks: List[Dict[str, Any]] = _load_picks()
@@ -19,6 +22,7 @@ def run() -> None:
         return
 
     publish_to_sheets(rows)
+
 
 if __name__ == "__main__":
     try:
