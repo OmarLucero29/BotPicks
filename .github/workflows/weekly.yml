@@ -1,0 +1,24 @@
+name: Weekly Evaluation
+on:
+  schedule:
+    - cron: "0 7 * * 2"
+  workflow_dispatch: {}
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt
+      - name: Placeholder weekly metrics
+        run: |
+          mkdir -p reports
+          echo "timestamp,deporte,liga,mercado,logloss,brier,roi,acc,ev_prom,edge_prom,n_picks" > reports/model_metrics.csv
+          echo "$(date -u +%FT%TZ),nba,NBA,Moneyline,0.38,0.18,0.06,0.58,0.03,0.05,120" >> reports/model_metrics.csv
+      - name: Commit & push
+        run: |
+          git config user.name "bot"; git config user.email "bot@example.com"
+          git add reports/model_metrics.csv
+          git commit -m "Weekly metrics" || echo "no changes"
+          git push || true
