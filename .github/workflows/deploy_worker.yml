@@ -1,0 +1,26 @@
+name: Deploy Cloudflare Worker
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "workers/**"
+      - "wrangler.toml"
+      - ".github/workflows/deploy_worker.yml"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish with Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: publish
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+          WEBHOOK_SECRET_PATH: ${{ secrets.WEBHOOK_SECRET_TOKEN }}
