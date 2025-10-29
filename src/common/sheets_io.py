@@ -1,6 +1,5 @@
 # src/common/sheets_io.py
 import os
-import io
 import json
 import base64
 from typing import List, Any
@@ -11,45 +10,73 @@ from google.oauth2.service_account import Credentials
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 
+def _try_json(text: str) -> dict | None:
+    try:
+        return json.loads(text)
+    except Exception:
+        return None
+
+
 def _load_sa_info() -> dict:
     """
-    Carga la key del Service Account desde:
-    - GCP_SA_JSON en Base64 (recomendado para CI)
-    - GCP_SA_JSON como JSON plano (con o sin \n escapados, con o sin BOM/quotes)
-    - GCP_SA_JSON apuntando a una ruta *.json existente
+    Acepta el secreto tal cual:
+      - JSON multilínea pegado (tu caso)
+      - JSON con \n escapados
+      - Base64 (línea única)
+      - Ruta a archivo .json
     """
-    raw = (os.getenv("GCP_SA_JSON") or "").strip()
+    raw = os.getenv("GCP_SA_JSON")
     if not raw:
-        raise RuntimeError("GCP_SA_JSON está vacío o no definido.")
+        raise RuntimeError("GCP_SA_JSON no está definido.")
+
+    raw = raw.lstrip("\ufeff")  # quita BOM si existe
+
+    # 0) Si parece JSON (empieza con '{'), intenta tal cual SIN modificar
+    trimmed = raw.strip()
+    if trimmed.startswith("{") and trimmed.endswith("}"):
+        parsed = _try_json(trimmed)
+        if parsed is not None:
+            return parsed
 
     # 1) ¿Es Base64?
     try:
-        decoded = base64.b64decode(raw, validate=True)
-        text = decoded.decode("utf-8-sig").strip()
-        if text.startswith("{") and text.endswith("}"):
-            return json.loads(text)
+        decoded = base64.b64decode(trimmed, validate=True).decode("utf-8-sig")
+        parsed = _try_json(decoded.strip())
+        if parsed is not None:
+            return parsed
     except Exception:
         pass
 
     # 2) ¿Es ruta a archivo?
-    if raw.endswith(".json") and os.path.exists(raw):
-        with open(raw, "r", encoding="utf-8-sig") as f:
+    if trimmed.endswith(".json") and os.path.exists(trimmed):
+        with open(trimmed, "r", encoding="utf-8-sig") as f:
             return json.load(f)
 
-    # 3) ¿Es JSON plano? Limpia posibles quotes envolventes y BOM
-    cleaned = raw
-    if cleaned and cleaned[0] in ("'", '"', "`") and cleaned[-1] == cleaned[0]:
-        cleaned = cleaned[1:-1]
-    # Reemplaza \n escapados por saltos reales, y quita BOM si existe
-    cleaned = cleaned.replace("\\n", "\n").lstrip("\ufeff").strip()
+    # 3) Reparaciones mínimas sobre texto “casi JSON”
+    # - Quita comillas envolventes accidentales
+    repaired = trimmed
+    if repaired and repaired[0] in ("'", '"', "`") and repaired[-1] == repaired[0]:
+        repaired = repaired[1:-1]
 
-    try:
-        return json.loads(cleaned)
-    except json.JSONDecodeError as e:
-        snippet = cleaned[:80].encode("unicode_escape", "ignore")
-        raise RuntimeError(
-            f"Error parseando GCP_SA_JSON: {e}. Inicio del contenido={snippet}"
-        ) from e
+    # - Reemplaza \\n por saltos reales SOLO dentro del valor de private_key si es necesario
+    #   (pero antes probamos una vez más por si ya es válido)
+    parsed = _try_json(repaired)
+    if parsed is not None:
+        return parsed
+
+    # Si aún no parsea, intenta una última reparación:
+    # algunos runners entregan todo con backslashes duplicados.
+    candidate = repaired.replace("\\n", "\n")
+    parsed = _try_json(candidate)
+    if parsed is not None:
+        return parsed
+
+    # Error claro con snippet seguro (sin exponer todo el secreto)
+    snippet = (trimmed[:120]).encode("unicode_escape", "ignore")
+    raise RuntimeError(
+        "Error parseando GCP_SA_JSON: formato no reconocido. "
+        f"Inicio del contenido={snippet}"
+    )
 
 
 def _authorize() -> gspread.Client:
@@ -59,12 +86,6 @@ def _authorize() -> gspread.Client:
 
 
 def write_rows(sheet_id: str, tab: str, rows: List[List[Any]]) -> None:
-    """
-    Append de filas en una hoja específica.
-    - sheet_id: ID del Google Sheet
-    - tab: nombre de la pestaña
-    - rows: lista de filas (listas)
-    """
     if not rows:
         return
     gc = _authorize()
