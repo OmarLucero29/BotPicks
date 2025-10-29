@@ -14,61 +14,70 @@ def _clean_secret(raw: str) -> str:
     """Limpia caracteres, saltos y líneas basura (***, etc.) del Secret."""
     if not raw:
         return raw
+    # Quita BOM y espacios extremos
     raw = raw.strip().lstrip("\ufeff")
-    # Si hay líneas con *** o vacías al inicio, elimínalas
-    lines = []
+
+    # Filtra líneas con *** o vacías (que suelen inyectarse en logs/editores)
+    lines: list[str] = []
     for line in raw.splitlines():
-        if line.strip().startswith("***"):
+        s = line.strip()
+        if not s:
             continue
-        if line.strip() == "":
+        if s.startswith("***"):
             continue
         lines.append(line)
     cleaned = "\n".join(lines).strip()
+
     # Quita comillas envolventes si existen
-    if (cleaned[0] in ["'", '"']) and cleaned[-1] == cleaned[0]:
+    if cleaned and (cleaned[0] in ("'", '"')) and cleaned[-1] == cleaned[0]:
         cleaned = cleaned[1:-1]
-    # Normaliza secuencias de escape
-    cleaned = cleaned.replace("\\n", "\n").replace("\\r", "").strip()
-    return cleaned
+
+    # Normaliza secuencias de escape y retornos reales
+    cleaned = cleaned.replace("\\r", "").replace("\\n", "\n")
+    cleaned = cleaned.replace("\r\n", "\n").replace("\r", "")
+
+    return cleaned.strip()
 
 
 def _load_sa_info() -> dict:
     """
     Carga credenciales GCP soportando:
-      - JSON multilínea (pegado directamente en Secret)
+      - JSON multilínea pegado (tu caso)
       - JSON con \n escapados
-      - Base64
-      - Ruta a archivo
+      - Base64 (línea única)
+      - Ruta a archivo .json
     """
     raw = os.getenv("GCP_SA_JSON")
     if not raw:
         raise RuntimeError("GCP_SA_JSON no está definido o está vacío.")
 
     raw = _clean_secret(raw)
+    if not raw:
+        raise RuntimeError("GCP_SA_JSON quedó vacío tras la limpieza automática.")
 
-    # 1. Intento directo como JSON
-    if raw.startswith("{"):
+    # 1) Intento directo como JSON
+    if raw.startswith("{") and raw.endswith("}"):
         try:
             return json.loads(raw)
         except Exception:
             pass
 
-    # 2. Intento Base64
+    # 2) Intento Base64
     try:
         decoded = base64.b64decode(raw, validate=True).decode("utf-8-sig").strip()
-        if decoded.startswith("{"):
+        if decoded.startswith("{") and decoded.endswith("}"):
             return json.loads(decoded)
     except Exception:
         pass
 
-    # 3. Si es ruta a archivo
+    # 3) ¿Ruta a archivo?
     if raw.endswith(".json") and os.path.exists(raw):
         with open(raw, "r", encoding="utf-8-sig") as f:
             return json.load(f)
 
-    # 4. Último intento: limpiar más profundamente
+    # 4) Último intento: limpieza reforzada y parseo
     candidate = _clean_secret(raw)
-    if candidate.startswith("{"):
+    if candidate and candidate.startswith("{") and candidate.endswith("}"):
         try:
             return json.loads(candidate)
         except json.JSONDecodeError as e:
@@ -78,8 +87,8 @@ def _load_sa_info() -> dict:
                 f"Inicio del contenido={snippet}"
             ) from e
 
-    # 5. Si no es JSON ni Base64 ni archivo
-    raise RuntimeError("Formato desconocido en GCP_SA_JSON.")
+    # 5) No se reconoció el formato
+    raise RuntimeError("Formato desconocido en GCP_SA_JSON (no es JSON, Base64 ni ruta a .json).")
 
 
 def _authorize() -> gspread.Client:
