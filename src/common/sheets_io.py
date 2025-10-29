@@ -10,8 +10,6 @@ import hashlib
 from datetime import datetime, timezone
 from typing import Any, Dict, Iterable, List, Optional
 
-from src.common.sheets_io import write_rows
-
 
 # ---------------------------- Utilidades ------------------------------------- #
 
