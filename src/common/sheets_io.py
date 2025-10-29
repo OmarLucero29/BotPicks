@@ -9,74 +9,59 @@ from google.oauth2.service_account import Credentials
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
-
-def _try_json(text: str) -> dict | None:
-    try:
-        return json.loads(text)
-    except Exception:
-        return None
-
-
 def _load_sa_info() -> dict:
     """
-    Acepta el secreto tal cual:
-      - JSON multilínea pegado (tu caso)
-      - JSON con \n escapados
-      - Base64 (línea única)
+    Carga credenciales GCP de múltiples formatos:
+      - JSON multilínea pegado (GitHub Secrets con saltos)
+      - JSON con '\n' escapados
+      - Base64
       - Ruta a archivo .json
     """
     raw = os.getenv("GCP_SA_JSON")
     if not raw:
         raise RuntimeError("GCP_SA_JSON no está definido.")
+    raw = raw.strip().lstrip("\ufeff")
 
-    raw = raw.lstrip("\ufeff")  # quita BOM si existe
+    # Si empieza con { intenta directo (JSON plano)
+    if raw.startswith("{"):
+        try:
+            return json.loads(raw)
+        except Exception:
+            pass
 
-    # 0) Si parece JSON (empieza con '{'), intenta tal cual SIN modificar
-    trimmed = raw.strip()
-    if trimmed.startswith("{") and trimmed.endswith("}"):
-        parsed = _try_json(trimmed)
-        if parsed is not None:
-            return parsed
-
-    # 1) ¿Es Base64?
+    # Si parece Base64
     try:
-        decoded = base64.b64decode(trimmed, validate=True).decode("utf-8-sig")
-        parsed = _try_json(decoded.strip())
-        if parsed is not None:
-            return parsed
+        decoded = base64.b64decode(raw, validate=True).decode("utf-8-sig")
+        if decoded.strip().startswith("{"):
+            return json.loads(decoded)
     except Exception:
         pass
 
-    # 2) ¿Es ruta a archivo?
-    if trimmed.endswith(".json") and os.path.exists(trimmed):
-        with open(trimmed, "r", encoding="utf-8-sig") as f:
+    # Si parece ruta de archivo
+    if raw.endswith(".json") and os.path.exists(raw):
+        with open(raw, "r", encoding="utf-8-sig") as f:
             return json.load(f)
 
-    # 3) Reparaciones mínimas sobre texto “casi JSON”
-    # - Quita comillas envolventes accidentales
-    repaired = trimmed
-    if repaired and repaired[0] in ("'", '"', "`") and repaired[-1] == repaired[0]:
-        repaired = repaired[1:-1]
+    # Normaliza saltos: reemplaza secuencias literales '\n' o reales por saltos reales
+    cleaned = raw.replace("\\n", "\n").replace('\r\n', '\n')
+    # Quita comillas envolventes si las hay
+    if (cleaned[0] in ['"', "'"]) and cleaned[-1] == cleaned[0]:
+        cleaned = cleaned[1:-1]
 
-    # - Reemplaza \\n por saltos reales SOLO dentro del valor de private_key si es necesario
-    #   (pero antes probamos una vez más por si ya es válido)
-    parsed = _try_json(repaired)
-    if parsed is not None:
-        return parsed
+    # Quita asteriscos o prefijos accidentales (*** etc.)
+    cleaned = "\n".join(
+        line for line in cleaned.splitlines() if not line.strip().startswith("***")
+    ).strip()
 
-    # Si aún no parsea, intenta una última reparación:
-    # algunos runners entregan todo con backslashes duplicados.
-    candidate = repaired.replace("\\n", "\n")
-    parsed = _try_json(candidate)
-    if parsed is not None:
-        return parsed
-
-    # Error claro con snippet seguro (sin exponer todo el secreto)
-    snippet = (trimmed[:120]).encode("unicode_escape", "ignore")
-    raise RuntimeError(
-        "Error parseando GCP_SA_JSON: formato no reconocido. "
-        f"Inicio del contenido={snippet}"
-    )
+    # Intenta parsear de nuevo
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        snippet = cleaned[:200].encode("unicode_escape", "ignore")
+        raise RuntimeError(
+            f"Error parseando GCP_SA_JSON (línea {e.lineno}, col {e.colno}): {e.msg}\n"
+            f"Inicio del contenido={snippet}"
+        ) from e
 
 
 def _authorize() -> gspread.Client:
@@ -95,5 +80,4 @@ def write_rows(sheet_id: str, tab: str, rows: List[List[Any]]) -> None:
         rows,
         value_input_option="USER_ENTERED",
         insert_data_option="INSERT_ROWS",
-        table_range=None,
     )
