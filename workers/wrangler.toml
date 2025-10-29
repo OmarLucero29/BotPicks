@@ -1,0 +1,13 @@
+name = "botpicks-worker"
+main = "index.js"
+compatibility_date = "2024-10-01"
+workers_dev = true
+
+# ⚠️ NO pongas account_id aquí en claro; lo pasamos por el Action.
+# Bindings (vars) inyectadas desde el Action:
+[vars]
+# Valores por defecto vacíos; el Action los sobreescribe
+TELEGRAM_BOT_TOKEN = ""
+SUPABASE_URL = ""
+SUPABASE_SERVICE_ROLE = ""
+WEBHOOK_SECRET_TOKEN = ""
