@@ -1,0 +1,8 @@
+# Entornos y artefactos
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Variables locales
+.env
