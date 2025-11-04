@@ -1,0 +1,2 @@
+- name: Run bundle
+  run: bash ./make_all.sh
