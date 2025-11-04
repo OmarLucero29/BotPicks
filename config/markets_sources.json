@@ -1,0 +1,10 @@
+{
+  "soccer":   {"enabled": true,  "source": "stub"},
+  "baseball": {"enabled": true,  "source": "stub"},
+  "basketball":{"enabled": true, "source": "stub"},
+  "tennis":   {"enabled": true,  "source": "stub"},
+  "hockey":   {"enabled": true,  "source": "stub"},
+  "pingpong": {"enabled": true,  "source": "stub"},
+  "football": {"enabled": true,  "source": "stub"},
+  "esports":  {"enabled": true,  "source": "stub"}
+}
