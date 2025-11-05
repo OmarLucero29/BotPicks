@@ -1,0 +1,44 @@
+name: BotPicks Pipeline
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Diario 02:30 America/Merida ≈ 08:30 UTC (ajusta si cambia DST)
+    - cron: "30 8 * * *"
+    # Semanal (Martes 02:00 America/Merida ≈ 08:00 UTC)
+    - cron: "0 8 * * 2"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Make all
+        env:
+          TIMEZONE: America/Merida
+          BANK: ${{ secrets.BANK }}
+          KELLY_FRACTION: ${{ secrets.KELLY_FRACTION }}
+          STAKE_CAP_PCT: ${{ secrets.STAKE_CAP_PCT }}
+          GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
+          GOOGLE_SHEETS_CREDENTIALS_JSON_BASE64: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS_JSON_BASE64 }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID_DEFAULT: ${{ secrets.TELEGRAM_CHAT_ID_DEFAULT }}
+          EV_THRESHOLD: ${{ secrets.EV_THRESHOLD }}
+        run: |
+          chmod +x make_all.sh
+          ./make_all.sh
