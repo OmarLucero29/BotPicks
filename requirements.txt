@@ -1,0 +1,17 @@
+python-dotenv>=1.0.0
+requests>=2.31.0
+pandas>=2.0.0
+numpy>=1.24.0
+tqdm>=4.65.0
+rich>=13.0.0
+supabase-py>=2.4.0
+gspread>=6.1.0
+oauth2client>=4.1.3
+python-telegram-bot>=21.0.1
+google-auth
+supabase
+joblib
+lightgbm
+scikit-learn
+REQ
+pulp>=2.6.0

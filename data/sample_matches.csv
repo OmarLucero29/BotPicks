@@ -1,0 +1,4 @@
+id,fecha,deporte,liga,home_team,away_team,home_goals,away_goals,market,outcome,odds_home,odds_draw,odds_away
+m1,2023-10-01T20:00:00Z,soccer,LaLiga,Real Madrid,Barcelona,2,3,1X2,away,1.90,3.40,3.60
+m2,2023-10-02T19:00:00Z,soccer,LaLiga,Atletico,Sevilla,1,0,1X2,home,2.10,3.30,3.40
+m3,2023-10-03T21:00:00Z,soccer,LaLiga,Valencia,Real Betis,0,0,1X2,draw,2.50,3.10,2.80
