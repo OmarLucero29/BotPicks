@@ -1,12 +1,12 @@
-name: Weekly Backfill (Tuesday 02:00 America/Merida)
+name: Daily Run (America/Merida 02:30)
 
 on:
   schedule:
-    - cron: "0 8 * * 2"  # 08:00 UTC = 02:00 America/Merida (martes)
+    - cron: "30 8 * * *"  # 08:30 UTC = 02:30 America/Merida
   workflow_dispatch:
 
 jobs:
-  weekly:
+  daily:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,9 +31,9 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 
-      - name: Backfill 3 años (all)
+      - name: Run daily pipeline
         run: |
-          python scripts/backfill_historical.py --sport all --years 3
+          python scripts/run_daily.py
         env:
           ODDSAPI_KEY: ${{ secrets.ODDSAPI_KEY }}
           FOOTBALLDATA_KEY: ${{ secrets.FOOTBALLDATA_KEY }}

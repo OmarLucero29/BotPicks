@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  run-bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # (Opcional) Quita CRLF si subiste el .sh desde Windows
+      - name: Normalize line endings
+        run: sed -i 's/\r$//' make_all.sh
+
+      # Llama el script con bash (no requiere +x)
+      - name: Run bundle
+        run: bash ./make_all.sh

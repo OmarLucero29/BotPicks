@@ -1,0 +1,46 @@
+name: Build Features
+
+on:
+  workflow_dispatch:
+    inputs:
+      sport:
+        description: "Deporte o 'all'"
+        required: false
+        default: "all"
+      since:
+        description: "YYYY-MM-DD (opcional)"
+        required: false
+        default: ""
+  schedule:
+    - cron: "15 3 * * *"
+    - cron: "30 4 * * 1"
+
+jobs:
+  build-features:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Prepare env
+        run: |
+          cp .env.example .env || true
+      - name: Backfill (opcional)
+        run: |
+          python scripts/backfill_historical.py --sport all --years 3 || true
+      - name: Validate
+        run: |
+          python scripts/validate_datasets.py --sport "${{ github.event.inputs.sport || 'all' }}"
+      - name: Build features
+        run: |
+          python scripts/build_features.py --sport "${{ github.event.inputs.sport || 'all' }}" $( [ -n "${{ github.event.inputs.since }}" ] && echo --since "${{ github.event.inputs.since }}" )
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: features
+          path: data/features/**/*
