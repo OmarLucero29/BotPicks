@@ -1,0 +1,20 @@
+name: Create Monthly Sheet
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+jobs:
+  create-sheet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with: { python-version: "3.11" }
+      - run: pip install -r BotPicks/google_sheets_module/requirements.txt
+      - run: |
+          echo "GCP_SA_JSON=${{ secrets.GCP_SA_JSON }}" >> $GITHUB_ENV
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE=${{ secrets.SUPABASE_SERVICE_ROLE }}" >> $GITHUB_ENV
+          echo "GSHEET_ID=${{ secrets.GSHEET_ID }}" >> $GITHUB_ENV
+      - run: python BotPicks/google_sheets_module/create_monthly_sheet.py
