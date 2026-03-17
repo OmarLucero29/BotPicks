@@ -1,0 +1,10 @@
+BotPicks Implementation Plan
+
+Phase 1 – Core system Phase 2 – Pipeline system Phase 3 – Data ingestion
+Phase 4 – Data normalization Phase 5 – Market intelligence Phase 6 –
+Feature engineering Phase 7 – Machine learning Phase 8 – Simulation
+engines Phase 9 – Strategy generation Phase 10 – Bankroll management
+Phase 11 – Telegram Copilot Phase 12 – Multi‑user system Phase 13 –
+Notifications Phase 14 – Monthly audit Phase 15 – Autonomous research
+Phase 16 – Multi‑agent intelligence Phase 17 – Digital betting coach
+Phase 18 – Knowledge distribution

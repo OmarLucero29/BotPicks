@@ -1,0 +1,11 @@
+BotPicks Universal Engine System
+
+All engines follow the BaseEngine contract.
+
+Core fields: - name - macro_system - layer - version - dependencies -
+schedule - enabled
+
+Lifecycle: DISCOVER → REGISTER → INITIALIZE → EXECUTE → LEARN → HEALTH
+CHECK
+
+Engine folders contain: engine.py config.yaml schema.json tests.py

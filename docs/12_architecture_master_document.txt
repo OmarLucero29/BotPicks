@@ -1,0 +1,198 @@
+BotPicks Architecture Master Document
+
+Purpose
+
+This document consolidates the complete architectural design of the
+BotPicks system. It serves as the central technical reference for the
+project.
+
+System Vision
+
+BotPicks is designed as an autonomous sports intelligence platform
+capable of:
+
+-   Discovering sports data sources automatically
+-   Modeling sports events and betting markets
+-   Training predictive models
+-   Running simulations and strategy optimization
+-   Generating betting picks
+-   Managing bankrolls across multiple sportsbooks
+-   Interacting with users via Telegram conversational AI
+-   Learning and evolving autonomously
+
+Core Architectural Principles
+
+1.  Modularity Every capability is encapsulated in engines organized
+    into layers and macro systems.
+
+2.  Autonomous Operation The system continuously runs pipelines to
+    collect data, train models, simulate outcomes, generate strategies,
+    and improve performance.
+
+3.  Engine Standardization All engines follow a universal interface
+    enabling discovery, orchestration, monitoring, and autonomous
+    repair.
+
+4.  Pipeline Orchestration Engines are connected through pipelines that
+    define data and decision flows.
+
+5.  Evolution and Extensibility The architecture allows generation of
+    new engines and modules without breaking the system.
+
+System Scale
+
+Approximate architecture size:
+
+Macro Systems: 24 Layers: ~120 Engines: ~1000+
+
+Primary Macro Systems
+
+1.  Autonomous Core System
+2.  Data Intelligence System
+3.  Sports Modeling System
+4.  Market Intelligence System
+5.  Predictive Intelligence System
+6.  Simulation Intelligence System
+7.  Strategic Betting Intelligence System
+8.  Economic Intelligence System
+9.  User & Subscription Intelligence System
+10. Conversational Copilot Intelligence System
+11. Autonomous Intelligence System
+12. Integration & Infrastructure System
+13. Governance & Safety System
+14. Intelligence Amplification System
+15. Reality Modeling System
+16. Knowledge Distribution System
+17. Community Intelligence System
+18. Sports Data Marketplace System
+19. Model Governance System
+20. System Optimization System
+21. Multi-Agent Intelligence System
+22. Global Knowledge Graph System
+23. Digital Betting Coach System
+24. Autonomous Runtime Extensions
+
+Core System Responsibilities
+
+The Autonomous Core System acts as the operating system of BotPicks.
+
+Responsibilities include:
+
+-   Engine discovery
+-   Module registration
+-   Pipeline orchestration
+-   Task scheduling
+-   State persistence
+-   System monitoring
+-   Engine auto-repair
+-   Autonomous evolution
+
+Universal Engine System
+
+Each engine follows a common contract:
+
+Fields: - name - macro_system - layer - version - dependencies -
+schedule
+
+Core methods: - initialize() - execute() - learn() - health_check()
+
+This structure enables the core system to manage thousands of engines
+consistently.
+
+Pipeline Architecture
+
+Pipelines connect engines into executable flows.
+
+Primary pipelines:
+
+DATA_PIPELINE MODEL_PIPELINE SIMULATION_PIPELINE STRATEGY_PIPELINE
+PICK_PIPELINE NOTIFICATION_PIPELINE MONTHLY_AUDIT_PIPELINE
+
+Pipelines can be triggered by:
+
+-   Scheduler
+-   Data events
+-   Telegram commands
+-   Autonomous learning modules
+
+Universal Data System
+
+Data architecture consists of:
+
+1.  Raw Data Layer
+2.  Data Lake Layer
+3.  Normalized Data Layer
+4.  Feature Store Layer
+5.  Dataset Layer
+6.  Historical Archive Layer
+7.  Data Access Layer
+8.  Metadata & Catalog Layer
+
+This design supports large-scale analytics, ML training, and
+simulations.
+
+Execution Architecture (GitHub Actions)
+
+The system runs continuously using scheduled jobs:
+
+Workers:
+
+-   data_worker
+-   market_worker
+-   model_worker
+-   simulation_worker
+-   strategy_worker
+-   notification_worker
+-   system_worker
+
+Jobs run at intervals such as:
+
+-   every 5 minutes
+-   hourly
+-   daily
+-   monthly
+
+System state is stored to allow persistent operation across executions.
+
+Conversational Copilot
+
+Telegram acts as the primary user interface.
+
+Capabilities:
+
+-   natural language queries
+-   strategy generation
+-   match analysis
+-   simulation requests
+-   bankroll monitoring
+-   system administration (admin only)
+
+Bankroll Intelligence
+
+The system manages betting capital across sportsbooks.
+
+Supported features:
+
+-   global bankroll
+-   sportsbook-specific bankrolls
+-   bookmaker discovery
+-   bookmaker activation / deactivation
+-   bet allocation optimization
+
+Autonomous Intelligence
+
+The system continuously improves through:
+
+-   hypothesis generation
+-   automated experimentation
+-   model improvement
+-   strategy evolution
+
+Final Architecture Goal
+
+BotPicks aims to operate as a fully autonomous sports intelligence
+platform capable of discovering insights, optimizing strategies, and
+assisting users through an intelligent conversational interface.
+
+This document serves as the foundational architecture reference for
+development, maintenance, and long-term evolution of the system.

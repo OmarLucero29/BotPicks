@@ -1,0 +1,32 @@
+BotPicks – Full Macro System Specification
+
+Total Macro Systems: 24
+
+1.  Autonomous Core System
+2.  Data Intelligence System
+3.  Sports Modeling System
+4.  Market Intelligence System
+5.  Predictive Intelligence System
+6.  Simulation Intelligence System
+7.  Strategic Betting Intelligence System
+8.  Economic Intelligence System
+9.  User & Subscription Intelligence System
+10. Conversational Copilot Intelligence System
+11. Autonomous Intelligence System
+12. Integration & Infrastructure System
+13. Governance & Safety System
+14. Intelligence Amplification System
+15. Reality Modeling System
+16. Knowledge Distribution System
+17. Community Intelligence System
+18. Sports Data Marketplace System
+19. Model Governance System
+20. System Optimization System
+21. Multi-Agent Intelligence System
+22. Global Knowledge Graph System
+23. Digital Betting Coach System
+24. Autonomous Runtime Extensions
+
+Each macro system contains multiple layers and engines designed to
+operate independently once the core pipeline and orchestration framework
+is active.

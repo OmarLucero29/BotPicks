@@ -1,0 +1,25 @@
+BotPicks – Global Pipeline Catalog
+
+Core pipelines:
+
+DATA_PIPELINE source_discovery provider_validation data_ingestion
+data_validation dataset_builder
+
+MODEL_PIPELINE feature_engineering model_training model_evaluation
+model_registry
+
+SIMULATION_PIPELINE match_simulation scenario_generation
+multiverse_simulation
+
+STRATEGY_PIPELINE edge_detection strategy_generation
+portfolio_optimization
+
+PICK_PIPELINE pick_generation parlay_generation ladder_generation
+
+NOTIFICATION_PIPELINE pick_notifications alerts telegram_delivery
+
+MONTHLY_AUDIT_PIPELINE performance_analysis roi_calculation
+report_generation google_sheets_export
+
+These pipelines are triggered by scheduler events, data updates,
+Telegram commands, or autonomous learning modules.

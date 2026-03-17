@@ -1,0 +1,12 @@
+BotPicks Universal Pipeline System
+
+Pipeline = chain of engines.
+
+Types of pipelines: - Data pipelines - Model pipelines - Simulation
+pipelines - Strategy pipelines - Pick pipelines - Notification pipelines
+
+Triggers: - scheduler - new data events - Telegram commands - autonomous
+learning signals
+
+Failure management: engine_failure → diagnosis → auto_repair → restart →
+notify admin

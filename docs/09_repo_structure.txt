@@ -1,0 +1,14 @@
+BotPicks – Repository Structure
+
+botpicks/ │ ├── core/ │ ├── kernel/ │ ├── runtime/ │ ├── orchestration/
+│ ├── evolution/ │ └── persistence/ │ ├── layers/ │ ├── data/ │ ├──
+sports_modeling/ │ ├── market_modeling/ │ ├── ml_pipeline/ │ ├──
+simulation/ │ ├── intelligence/ │ ├── user_intelligence/ │ ├──
+conversational_copilot/ │ ├── governance/ │ ├── integrations/ │ ├──
+community_intelligence/ │ ├── knowledge_distribution/ │ ├──
+data_marketplace/ │ ├── model_governance/ │ └── system_optimization/ │
+├── pipelines/ ├── agents/ ├── storage/ ├── logs/ ├── configs/ └──
+main.py
+
+The repository is designed for automatic engine discovery and modular
+expansion.

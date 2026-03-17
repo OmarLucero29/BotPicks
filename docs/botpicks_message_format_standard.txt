@@ -1,0 +1,58 @@
+BotPicks Implementation Message Format
+
+This document defines the STANDARD MESSAGE FORMAT that must be used
+during the implementation phase of BotPicks. Every response that
+describes a macro system, layer, or engines must follow this exact
+structure so that the user can copy and paste folder and engine names
+directly into the project.
+
+MESSAGE STRUCTURE
+
+-Nombre de Macrosistema(carpeta/) -Layer(carpeta/) -Total de Engines
+-Listado de Engines
+
+RULES
+
+1.  Folder names MUST end with a slash (/).
+2.  Engine names MUST be written exactly as they will appear in the
+    codebase.
+3.  All names must be lowercase and use underscores.
+4.  The format must remain identical in every iteration.
+5.  Names must be copy‑paste ready for direct use in the repository.
+6.  Each macro system may contain multiple layers, each listed
+    separately.
+
+EXAMPLE FORMAT
+
+-Nombre de Macrosistema(core/)
+
+-Layer(system_kernel/)
+
+Total de Engines: 5
+
+Listado de Engines:
+
+system_boot_engine module_loader_engine layer_registry_engine
+engine_registry_engine kernel_state_engine
+
+-Layer(autonomous_runtime/)
+
+Total de Engines: 4
+
+Listado de Engines:
+
+task_scheduler_engine background_worker_engine event_dispatch_engine
+runtime_health_engine
+
+IMPLEMENTATION GUIDELINES
+
+When implementing the system:
+
+1.  Only implement one macro system or layer per iteration.
+2.  Keep the naming consistent with the architecture documents.
+3.  Ensure engines correspond to actual functionality.
+4.  Maintain compatibility with the Universal Engine System.
+5.  Maintain compatibility with the Universal Pipeline System.
+
+This document must remain in the project context so that every
+implementation step follows the same structured format.

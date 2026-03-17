@@ -1,0 +1,8 @@
+BotPicks Universal Data System
+
+Layers: 1. Raw Data Layer 2. Data Lake Layer 3. Normalized Data Layer 4.
+Feature Store Layer 5. Dataset Layer 6. Historical Archive Layer 7. Data
+Access Layer 8. Metadata & Catalog Layer
+
+Data flow: DISCOVERY → INGESTION → NORMALIZATION → FEATURE ENGINEERING →
+DATASET CREATION → MODEL TRAINING → SIMULATION → STRATEGY → PICKS

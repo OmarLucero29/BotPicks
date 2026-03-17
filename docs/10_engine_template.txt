@@ -1,0 +1,33 @@
+BotPicks – Universal Engine Template
+
+Example engine template used for every engine in the system.
+
+class BaseEngine:
+
+    name = "engine_name"
+    macro_system = "macro_system_name"
+    layer = "layer_name"
+    version = "1.0"
+
+    dependencies = []
+    schedule = None
+    enabled = True
+
+    def initialize(self, context):
+        pass
+
+    def execute(self, context):
+        pass
+
+    def learn(self, data, context):
+        pass
+
+    def health_check(self, context):
+        return True
+
+Folder structure for each engine:
+
+engine_name/ engine.py config.yaml schema.json tests.py
+
+All engines must follow this contract so they can be auto-discovered and
+orchestrated.

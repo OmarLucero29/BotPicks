@@ -1,0 +1,75 @@
+BOT PICKS — ITERATION MESSAGE FORMAT STANDARD
+
+This document defines the exact format that must always be used when
+generating a new implementation iteration for BotPicks.
+
+Each iteration implements ONE Macro System or ONE Layer.
+
+The response must ALWAYS follow this structure:
+
+------------------------------------------------------------------------
+
+-Nombre de Macrosistema(carpeta/)
+
+-Layer(carpeta/)
+
+Total de Engines a implementar
+
+Listado de Engines a implementar
+
+------------------------------------------------------------------------
+
+Rules
+
+1.  Folder names must end with a slash (/)
+2.  Engine names must end with _engine.py
+3.  Names must be copy‑paste ready
+4.  No explanations inside the list
+5.  Only implementation names
+
+Example
+
+-Nombre de Macrosistema (core/)
+
+-Layer (system_kernel/)
+
+Total de Engines a implementar 7
+
+Listado de Engines a implementar
+
+system_boot_engine.py module_loader_engine.py layer_registry_engine.py
+engine_registry_engine.py runtime_environment_engine.py
+kernel_state_engine.py kernel_monitor_engine.py
+
+------------------------------------------------------------------------
+
+Implementation Principle
+
+Each iteration:
+
+1.  Create folder structure
+2.  Create empty engine files
+3.  Activate layer in pipeline system
+
+Engine files must start empty using this template:
+
+class Engine:
+
+    name = "engine_name"
+
+    def initialize(self, context):
+        pass
+
+    def execute(self, context):
+        pass
+
+    def learn(self, data, context):
+        pass
+
+    def health_check(self, context):
+        return True
+
+------------------------------------------------------------------------
+
+This file must remain in the project context so every iteration follows
+the exact same structure.

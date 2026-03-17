@@ -1,0 +1,11 @@
+GitHub Actions Execution Architecture
+
+Workers: - data_worker - market_worker - model_worker -
+simulation_worker - strategy_worker - notification_worker -
+system_worker
+
+Scheduler triggers jobs every: 5 minutes 30 minutes 1 hour daily monthly
+
+State persistence stored in: storage/state/
+
+Monthly pipeline exports performance reports to Google Sheets.
